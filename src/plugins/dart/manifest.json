@@ -1,7 +1,7 @@
 {
   "name": "dart",
-  "version": "0.0.1",
-  "description": "Generic Dart / Flutter parser. STUB — implementation lands in Phase D.",
+  "version": "0.4.0",
+  "description": "Generic Dart / Flutter parser — module/class/function graph, package: + relative imports, complexity, missing-await + empty-catch detection.",
   "detect": "./detect.js",
-  "parsers": []
+  "parsers": ["./parser.js"]
 }

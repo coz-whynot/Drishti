@@ -1,7 +1,7 @@
 {
   "name": "typescript",
-  "version": "0.0.1",
-  "description": "Generic TypeScript / JavaScript parser. STUB — implementation lands in Phase D.",
+  "version": "0.3.0",
+  "description": "Generic TypeScript / JavaScript / JSX / TSX parser — module/class/function graph, imports, complexity, swallowed-promise + empty-catch detection.",
   "detect": "./detect.js",
-  "parsers": []
+  "parsers": ["./parser.js"]
 }
