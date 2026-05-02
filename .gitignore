@@ -1,0 +1,62 @@
+# Drishti — gitignore
+# All external plugins (`plugins/*`) are gitignored by default — they're
+# bring-your-own. Drop a plugin folder under plugins/ and it loads
+# automatically without ever being committed to a public repo. Use this for
+# project-specific or proprietary plugins.
+
+# All external plugin directories — never push
+plugins/*
+!plugins/.gitkeep
+
+# Local plugins (anyone can drop a plugin here without pushing it)
+plugins/local/
+plugins/local/**
+
+# Drishti scan outputs — these contain real project metadata
+drishti-scans/
+.test-output/
+*.snapshot.json
+
+# Generated dashboard
+drishti.html
+
+# Firebase sample (never commit — even though it only has field names, no values)
+firebase-sample.json
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Tauri build artifacts (added in Phase B)
+src-tauri/target/
+src-tauri/Cargo.lock
+src-tauri/WixTools/
+src-tauri/.cargo/
+
+# Build output
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Env / secrets — never commit
+.env
+.env.*
+*.key
+*.pem
+credentials*.json
+service-account*.json
+.firebase-credentials*

@@ -1,0 +1,6 @@
+# This directory is for external plugins. Each plugin lives in its own
+# subdirectory with a manifest.json. Drop one in here and run `node src/scan.js`
+# to load it automatically.
+#
+# Anything in this directory other than this `.gitkeep` is gitignored.
+# See README.md for the plugin contract.

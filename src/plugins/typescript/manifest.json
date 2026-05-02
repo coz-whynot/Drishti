@@ -1,0 +1,7 @@
+{
+  "name": "typescript",
+  "version": "0.0.1",
+  "description": "Generic TypeScript / JavaScript parser. STUB — implementation lands in Phase D.",
+  "detect": "./detect.js",
+  "parsers": []
+}

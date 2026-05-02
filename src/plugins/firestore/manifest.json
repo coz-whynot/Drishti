@@ -1,0 +1,7 @@
+{
+  "name": "firestore",
+  "version": "0.0.1",
+  "description": "Firestore plugin — adds Schema tab, field-usage parser, rule introspection. STUB — implementation lands in Phase D.",
+  "detect": "./detect.js",
+  "parsers": []
+}

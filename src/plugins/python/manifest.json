@@ -1,0 +1,7 @@
+{
+  "name": "python",
+  "version": "0.0.1",
+  "description": "Generic Python parser — function/class graph + complexity + imports. STUB — implementation lands in Phase D.",
+  "detect": "./detect.js",
+  "parsers": []
+}

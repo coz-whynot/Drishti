@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Drishti — Project Map</title>
+<style>__STYLES__</style>
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand drishti-brand">दृष्टि <span class="sub">Drishti</span></div>
+    <nav id="tabnav" role="tablist">
+      <button class="tab active" data-tab="overview" role="tab" aria-selected="true">📊 Overview</button>
+      <button class="tab" data-tab="map" role="tab" aria-selected="false">🗺️ Map</button>
+      <button class="tab" data-tab="schema" role="tab" aria-selected="false">📐 Schema</button>
+      <button class="tab" data-tab="risks" role="tab" aria-selected="false">🚨 Risks</button>
+      <button class="tab" data-tab="issues" role="tab" aria-selected="false">📋 Issues</button>
+    </nav>
+    <input id="nlQuery" type="text" placeholder='Search nodes / files…' />
+    <button id="refreshBtn" class="refresh-btn" title="Re-scan project (watch mode only)">↻ Refresh</button>
+    <button id="stepBtn" class="step-btn" data-step="off" title="Walk the graph one node at a time">▶ Step Mode</button>
+    <div id="liveIndicator" class="live-indicator static" title="Watch-mode connection status">○ Static</div>
+    <div id="launchBadge" class="badge green" title="Project health">Healthy</div>
+  </header>
+  <!--
+    The pill filter bar is plugin-driven. Built-in shows nothing; activated
+    plugins inject pills via window.__DRISHTI_REGISTER_PILL__ at boot.
+  -->
+  <div id="filterbar"></div>
+  <aside id="sidebar">
+    <h3>Overlays</h3>
+    <label><input type="checkbox" data-overlay="errors" checked> Error heat</label>
+    <label><input type="checkbox" data-overlay="silent" checked> Silent failures</label>
+    <label><input type="checkbox" data-overlay="issues" checked> Open issues</label>
+    <!--
+      Surface checkboxes are plugin-driven. Each plugin registers the
+      surfaces it contributes; the loader builds checkboxes from the union.
+      Built-in shell shows none; populated at runtime.
+    -->
+    <h3>Surfaces</h3>
+    <div id="surfacesFilter"></div>
+    <h3>Stats</h3>
+    <div id="stats"></div>
+  </aside>
+  <main id="content">
+    <section id="tab-overview" class="tab-pane active"></section>
+    <section id="tab-map" class="tab-pane"><div id="graph"></div></section>
+    <section id="tab-schema" class="tab-pane"></section>
+    <section id="tab-risks" class="tab-pane"><div id="risksTable"></div></section>
+    <section id="tab-issues" class="tab-pane"><div id="issuesTable"></div></section>
+  </main>
+  <aside id="detail" class="hidden">
+    <button id="closeDetail" aria-label="Close">x</button>
+    <div id="detailContent"></div>
+  </aside>
+  <script>window.__DRISHTI_SNAPSHOT__ = __SNAPSHOT__;</script>
+  <script>__VIS_NETWORK_UMD__</script>
+  <script>__APP_JS__</script>
+  <script>__WS_CLIENT_JS__</script>
+</body>
+</html>
