@@ -1,7 +1,7 @@
 {
   "name": "python",
-  "version": "0.0.1",
-  "description": "Generic Python parser — function/class graph + complexity + imports. STUB — implementation lands in Phase D.",
+  "version": "0.2.0",
+  "description": "Generic Python parser — module/class/function graph, imports, complexity, silent-failure detection. Activates when any .py file is found in the project.",
   "detect": "./detect.js",
-  "parsers": []
+  "parsers": ["./parser.js"]
 }

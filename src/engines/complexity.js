@@ -90,7 +90,8 @@ export function computeComplexitiesForFile(text, language) {
 function extractPythonFns(text) {
   const lines = text.split('\n');
   const out = [];
-  const defRe = /^(\s*)def\s+(\w+)\s*\(/;
+  // Match `def foo(` and `async def foo(` at any indent (so methods inside classes are caught too).
+  const defRe = /^(\s*)(?:async\s+)?def\s+(\w+)\s*\(/;
   let i = 0;
   while (i < lines.length) {
     const m = lines[i].match(defRe);
