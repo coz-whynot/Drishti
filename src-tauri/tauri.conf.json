@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Drishti",
-  "version": "1.0.0",
+  "version": "../package.json",
   "identifier": "dev.drishti.app",
   "build": {
     "frontendDist": "../dist-tauri",
@@ -26,7 +26,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": "all",
     "icon": ["icons/icon.png"],
     "category": "DeveloperTool",
     "shortDescription": "Code-intelligence dashboard for any project",
