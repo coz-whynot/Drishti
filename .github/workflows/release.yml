@@ -139,6 +139,9 @@ jobs:
         with:
           path: artifacts
 
+      - name: List downloaded artifacts
+        run: find artifacts -type f -printf "%p (%s bytes)\n"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -147,7 +150,14 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+          # upload-artifact preserves the lowest-common-ancestor dir structure,
+          # so the .exe/.msi/.dmg/.deb/.AppImage live in subdirs (nsis/, msi/,
+          # dmg/, deb/, appimage/). Use a recursive glob so action-gh-release
+          # finds them at any depth under artifacts/.
           files: |
-            artifacts/drishti-windows/*
-            artifacts/drishti-macos/*
-            artifacts/drishti-linux/*
+            artifacts/drishti-windows/**/*.exe
+            artifacts/drishti-windows/**/*.msi
+            artifacts/drishti-macos/**/*.dmg
+            artifacts/drishti-linux/**/*.deb
+            artifacts/drishti-linux/**/*.AppImage
+            artifacts/drishti-linux/**/*.rpm
