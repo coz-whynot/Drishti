@@ -1,7 +1,7 @@
 {
   "name": "firestore",
-  "version": "0.0.1",
-  "description": "Firestore plugin — adds Schema tab, field-usage parser, rule introspection. STUB — implementation lands in Phase D.",
+  "version": "0.5.0",
+  "description": "Firestore plugin — extracts collections from firestore.rules, indexed fields from firestore.indexes.json, and field-usage triples from Python (firebase_admin), TypeScript/JavaScript (firebase v9), and Dart (cloud_firestore) code. Populates the Schema tab.",
   "detect": "./detect.js",
-  "parsers": []
+  "parsers": ["./parser.js"]
 }

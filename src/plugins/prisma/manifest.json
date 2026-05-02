@@ -1,0 +1,7 @@
+{
+  "name": "prisma",
+  "version": "0.6.0",
+  "description": "Prisma ORM plugin — parses prisma/schema.prisma model definitions and feeds them into the Schema tab.",
+  "detect": "./detect.js",
+  "parsers": ["./parser.js"]
+}

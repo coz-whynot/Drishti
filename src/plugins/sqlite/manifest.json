@@ -1,0 +1,7 @@
+{
+  "name": "sqlite",
+  "version": "0.6.0",
+  "description": "SQLite plugin — parses CREATE TABLE statements from .sql migration files in common locations (migrations/, db/migrations/, sql/) into Schema-tab rows.",
+  "detect": "./detect.js",
+  "parsers": ["./parser.js"]
+}

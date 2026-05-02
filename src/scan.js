@@ -52,7 +52,9 @@ export async function runScan({ projectRoot, outputDir, writeHtml = true }) {
   snapshot.projectRoot = projectRoot;
   snapshot.projectName = path.basename(projectRoot);
   snapshot.activePlugins = active.map(p => p.name);
-  snapshot.schema = {};
+  // Schema rows come from any plugin that contributes them (currently the
+  // firestore plugin; future Prisma/SQL/Mongoose plugins will too).
+  snapshot.schema = parsed.schema || {};
   snapshot.schemaSources = { docWarnings: [], firebaseSampledAt: null };
 
   await fs.mkdir(outputDir, { recursive: true });

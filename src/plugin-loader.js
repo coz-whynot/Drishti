@@ -79,7 +79,12 @@ export async function detectActive(plugins, ctx) {
 }
 
 export async function runParsers(activePlugins, ctx) {
-  const all = { nodes: [], edges: [], issues: [] };
+  // Plugins can contribute four things:
+  //   nodes, edges, issues — flat arrays merged across plugins
+  //   schema               — per-collection field rows merged keyed by
+  //                          collection name (later plugins extend / override
+  //                          rows from earlier plugins)
+  const all = { nodes: [], edges: [], issues: [], schema: {} };
   for (const p of activePlugins) {
     for (const parserPath of p.parsers || []) {
       try {
@@ -89,10 +94,40 @@ export async function runParsers(activePlugins, ctx) {
         if (out?.nodes) all.nodes.push(...out.nodes);
         if (out?.edges) all.edges.push(...out.edges);
         if (out?.issues) all.issues.push(...out.issues);
+        if (out?.schema) {
+          for (const [coll, rows] of Object.entries(out.schema)) {
+            if (!all.schema[coll]) all.schema[coll] = rows;
+            else all.schema[coll] = mergeSchemaRows(all.schema[coll], rows);
+          }
+        }
       } catch (err) {
         console.error(`[drishti] plugin "${p.name}" parser ${parserPath} failed:`, err.message);
       }
     }
   }
   return all;
+}
+
+// Merge two arrays of field rows for the same collection. Rows are matched by
+// `field` name. Later rows extend earlier ones (set fields that were null /
+// concat refs). Drift reasons are unioned. This lets, e.g., a D-Hash-specific
+// plugin add `doc: true` to rows the generic firestore plugin found.
+function mergeSchemaRows(a, b) {
+  const byField = new Map(a.map(r => [r.field, { ...r }]));
+  for (const incoming of b) {
+    const cur = byField.get(incoming.field);
+    if (!cur) {
+      byField.set(incoming.field, { ...incoming });
+      continue;
+    }
+    cur.doc = cur.doc || incoming.doc;
+    cur.firebase = cur.firebase != null ? cur.firebase : incoming.firebase;
+    cur.app = cur.app || incoming.app;
+    cur.bot = cur.bot || incoming.bot;
+    cur.website = cur.website || incoming.website;
+    cur.refs = [...(cur.refs || []), ...(incoming.refs || [])];
+    cur.drift = [...new Set([...(cur.drift || []), ...(incoming.drift || [])])];
+    cur.meta = { ...(cur.meta || {}), ...(incoming.meta || {}) };
+  }
+  return [...byField.values()];
 }
