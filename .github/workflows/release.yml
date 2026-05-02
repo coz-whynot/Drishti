@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest, macos-latest, ubuntu-22.04]
+        platform: [windows-latest, macos-latest, ubuntu-24.04]
 
     runs-on: ${{ matrix.platform }}
 
@@ -53,15 +53,16 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
           restore-keys: ${{ runner.os }}-cargo-
 
-      # Tauri on Ubuntu needs webkit2gtk + a few system libs.
-      # The package set differs between Ubuntu 22.04 (libwebkit2gtk-4.0) and
-      # 24.04 (libwebkit2gtk-4.1). We pin to 22.04 to keep this stable.
+      # Tauri 2.x on Linux requires libwebkit2gtk-4.1 + libsoup-3.0.
+      # Ubuntu 22.04 only ships 4.0 — we run on 24.04 which has 4.1 in apt.
       - name: Install Linux dependencies
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            libwebkit2gtk-4.0-dev \
+            libwebkit2gtk-4.1-dev \
+            libjavascriptcoregtk-4.1-dev \
+            libsoup-3.0-dev \
             build-essential \
             curl \
             wget \
@@ -100,7 +101,7 @@ jobs:
           path: src-tauri/target/release/bundle/dmg/*.dmg
 
       - name: Upload Linux .deb + .AppImage
-        if: matrix.platform == 'ubuntu-22.04'
+        if: matrix.platform == 'ubuntu-24.04'
         uses: actions/upload-artifact@v4
         with:
           name: drishti-linux
@@ -113,7 +114,7 @@ jobs:
   # push (not a manual workflow_dispatch).
   release:
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Download all artifacts
@@ -126,7 +127,7 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: ${{ github.ref_name }}
-          draft: true
+          draft: false
           prerelease: false
           generate_release_notes: true
           files: |
