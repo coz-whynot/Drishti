@@ -1,0 +1,7 @@
+{
+  "name": "supabase",
+  "version": "0.7.0",
+  "description": "Supabase plugin — parses supabase/migrations/*.sql for CREATE TABLE definitions and CREATE POLICY for Row Level Security. Tags collections as Supabase-sourced and surfaces RLS coverage per table.",
+  "detect": "./detect.js",
+  "parsers": ["./parser.js"]
+}
