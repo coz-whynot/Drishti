@@ -3,9 +3,11 @@
 const { DataSet, Network } = (typeof window !== 'undefined' && window.vis) || {};
 
 import { renderSchemaTab as _renderSchemaTab } from './schema-tab.js';
-// Wrapper so the schema-tab module always reads the latest module-level
-// `snapshot` here (which is rebound on each renderSnapshot call).
+import { renderFilesTab as _renderFilesTab } from './files-tab.js';
+// Wrapper so the tab modules always read the latest module-level `snapshot`
+// here (which is rebound on each renderSnapshot call).
 function renderSchemaTab() { _renderSchemaTab(() => snapshot); }
+function renderFilesTab() { _renderFilesTab(() => snapshot); }
 
 const COLORS = {
   bot: '#5c8fd1', website: '#7a9e4a', app: '#b06fd1',
@@ -636,6 +638,7 @@ function switchTab(tab) {
   else if (tab === 'risks') renderRisksTab();
   else if (tab === 'issues') renderIssuesTab();
   else if (tab === 'schema') renderSchemaTab();
+  else if (tab === 'files') renderFilesTab();
   else if (tab === 'map' && network) {
     // Map became visible — give vis-network a beat to compute its size,
     // then re-fit so the graph isn't squished from the previous layout.
@@ -1058,6 +1061,7 @@ export function renderSnapshot(next) {
   else if (activeTab === 'risks') renderRisksTab();
   else if (activeTab === 'issues') renderIssuesTab();
   else if (activeTab === 'schema') renderSchemaTab();
+  else if (activeTab === 'files') renderFilesTab();
   if (typeof window !== 'undefined') {
     window.__DRISHTI_SNAPSHOT__ = snapshot;
   }

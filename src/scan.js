@@ -16,6 +16,7 @@ import { createSnapshot } from './model.js';
 import { combine } from './combine.js';
 import { combineSchema } from './combine-schema.js';
 import { readGitInfo } from './git-info.js';
+import { buildFileTree } from './file-tree.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -56,6 +57,10 @@ export async function runScan({ projectRoot, outputDir, writeHtml = true }) {
   // firestore plugin; future Prisma/SQL/Mongoose plugins will too).
   snapshot.schema = parsed.schema || {};
   snapshot.schemaSources = { docWarnings: [], firebaseSampledAt: null };
+
+  // File tree for the Files tab — walks the project, inlines small text files.
+  // Independent of plugins so it works on any project type.
+  snapshot.fileTree = await buildFileTree({ projectRoot });
 
   await fs.mkdir(outputDir, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 16);
