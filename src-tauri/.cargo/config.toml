@@ -1,0 +1,5 @@
+# Use Rust's bundled rust-lld linker + self-contained mingw libs.
+# Avoids needing an external GCC (which conflicts with the LLVM-MinGW we have).
+[target.x86_64-pc-windows-gnu]
+linker = "rust-lld"
+rustflags = ["-C", "link-self-contained=yes"]

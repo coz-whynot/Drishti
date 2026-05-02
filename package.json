@@ -1,25 +1,33 @@
 {
   "name": "drishti",
-  "version": "0.1.0-alpha.0",
+  "version": "1.0.0",
   "description": "Standalone code-intelligence dashboard for any project",
   "type": "module",
   "scripts": {
     "scan": "node src/scan.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "build-tauri-frontend": "node scripts/build-tauri-frontend.js"
   },
   "dependencies": {
     "chokidar": "^3.6.0",
-    "ws": "^8.17.0",
-    "sirv": "^2.0.4"
+    "sirv": "^2.0.4",
+    "ws": "^8.17.0"
   },
   "devDependencies": {
-    "vis-network": "^9.1.9",
-    "vis-data": "^7.1.9",
+    "@tauri-apps/api": "^2.11.0",
+    "@tauri-apps/cli": "^2.11.0",
     "esbuild": "^0.21.0",
+    "vis-data": "^7.1.9",
+    "vis-network": "^9.1.9",
     "vitest": "^1.6.0"
   },
-  "engines": { "node": ">=18" },
+  "engines": {
+    "node": ">=18"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

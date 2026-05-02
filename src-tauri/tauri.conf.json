@@ -1,0 +1,37 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "Drishti",
+  "version": "1.0.0",
+  "identifier": "dev.drishti.app",
+  "build": {
+    "frontendDist": "../dist-tauri",
+    "beforeBuildCommand": "node scripts/build-tauri-frontend.js"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Drishti",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 900,
+        "minHeight": 600,
+        "resizable": true,
+        "center": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.png"],
+    "category": "DeveloperTool",
+    "shortDescription": "Code-intelligence dashboard for any project",
+    "longDescription": "Drishti scans a code repository and produces an interactive visual dashboard: file/function graph, complexity warnings, dependency audit, schema inspection, risk ranking. Runs offline, supports plugins for custom databases and parsers.",
+    "publisher": "Drishti contributors",
+    "homepage": "https://github.com/coz-whynot/Drishti"
+  }
+}

@@ -2,62 +2,108 @@
 
 > A standalone code-intelligence dashboard for any project.
 
-**Status:** v0.1.0-alpha — under active development. Tauri desktop shell + generic parsers in progress.
-
-Drishti scans a code repository and produces a single visual dashboard:
-graph of files / functions / dependencies, complexity warnings, dependency
-audit, schema inspection (when Firestore detected), risk ranking.
-
-It runs **offline** — your code never leaves your machine.
+**v1.0.0** — works on any code repository. Walks the project, classifies files
+by language, builds a graph of files / functions / dependencies, scores
+complexity, audits dependencies, inspects schemas (Firestore / Prisma / SQLite
+/ Supabase / Mongoose / Postgres), and ranks risk. Runs **offline**.
 
 ---
 
-## Status by feature
+## Quick start
 
-| Feature | Status |
-|---|---|
-| Browser-based dashboard (run `node src/scan.js <project>`) | working |
-| Tauri desktop shell + installer | in progress (Phase B) |
-| Folder picker startup screen | planned (Phase C) |
-| Generic Python parser | planned (Phase D) |
-| Generic TypeScript / JavaScript parser | planned (Phase D) |
-| Generic Dart parser | planned (Phase D) |
-| File explorer pane | planned (Phase E) |
-| Cross-platform installers (Win / Mac / Linux) | planned (Phase F) |
+### Easiest: launcher script (Windows)
 
-See [docs/spec/standalone-tool-design.md](docs/spec/standalone-tool-design.md) for the full v0.1 plan.
+```
+git clone https://github.com/coz-whynot/Drishti.git
+cd Drishti
+npm install
+Drishti.cmd
+```
 
----
+`Drishti.cmd` opens a folder picker, scans the chosen project, and opens the
+dashboard in your default browser. Pin it to your taskbar for one-click access.
 
-## Quick start (CLI mode, until desktop app ships)
+### CLI: run the scanner directly
 
 ```bash
-git clone https://github.com/coz-whynot/drishti.git
-cd drishti
+git clone https://github.com/coz-whynot/Drishti.git
+cd Drishti
 npm install
 node src/scan.js /absolute/path/to/your/project
 # opens drishti.html in your default browser
 ```
 
-Drishti walks the project, classifies files by language, and renders a
-dashboard. For Firestore projects, the **Schema** tab shows field-by-field
-usage across the codebase.
+### Watch mode (auto-rescan on file change, live Refresh button)
+
+```bash
+npm run watch
+# open the URL it prints (usually http://localhost:8765)
+```
+
+---
+
+## What's covered
+
+### Languages
+- **Python** — module/class/function graph, imports, complexity, silent failures
+  (`try/except: pass`)
+- **TypeScript / JavaScript** — same + swallowed promises, empty catches
+- **Dart** — same + missing await on Future-returning functions
+- **Plus** — generic file walk + dep audit on any source language
+
+### Databases
+The Schema tab populates from any of these when detected in the project:
+- **Firestore** — collections from `firestore.rules`, indexed fields from
+  `firestore.indexes.json`, field-usage refs from Python `firebase_admin` /
+  TS `firebase v9` / Dart `cloud_firestore`
+- **Prisma** — `prisma/schema.prisma` model declarations
+- **SQLite** — CREATE TABLE in `migrations/`, `db/migrations/`, `sql/`
+- **Supabase** — Postgres tables + CREATE POLICY (RLS) + ENABLE RLS detection
+- **Mongoose** — `new Schema({...})` definitions
+- **Postgres** — Knex.js builder migrations + raw SQL DDL
+
+### Tabs
+- **📊 Overview** — health score, top risks, what changed since last scan
+- **🗺️ Map** — interactive node/edge graph
+- **📐 Schema** — per-collection field-by-field usage across surfaces
+- **📁 Files** — left tree + right read-only preview
+- **🚨 Risks** — ranked list of red nodes
+- **📋 Issues** — filterable issue list
 
 ---
 
 ## Plugin architecture
 
-Drishti's parsers are plugins. Built-in plugins (planned for v0.1):
+Drishti's parsers are plugins. Built-in:
 
-- `python` — function/class graph, complexity, imports
-- `typescript` — same for `.ts`/`.tsx`/`.js`/`.jsx`
-- `dart` — same for `.dart`
-- `firestore` — Schema tab when Firestore is detected
+| Plugin | Detects | Output |
+|---|---|---|
+| `python` | any `.py` file | Modules · classes · functions · imports · silent failures |
+| `typescript` | any `.ts`/`.tsx`/`.js`/`.jsx` file | Same + swallowed promises + empty catches |
+| `dart` | any `.dart` file or `pubspec.yaml` | Same + missing-await on Future fns |
+| `firestore` | `firestore.rules` or Firestore SDK import | Collections + Schema-tab field usage |
+| `prisma` | `prisma/schema.prisma` | Model collections + Schema-tab rows |
+| `sqlite` | `.sql` files in `migrations/` | CREATE TABLE → Schema-tab rows |
+| `supabase` | `supabase/` dir or `@supabase/supabase-js` import | Tables + RLS policies + RLS coverage issues |
+| `mongoose` | `mongoose` in package.json | Schema definitions |
+| `postgres` | `knexfile.js` or `pg` in package.json | Knex builder + raw SQL DDL |
 
-Drop your own plugin in `plugins/<name>/` with a `manifest.json` and parser
-files. The plugin loader auto-detects which plugins apply to a given project.
+Drop your own plugin in `plugins/<name>/` with a `manifest.json`, optional
+`detect.js`, and parser files. Plugins under `plugins/` are gitignored by
+default, so private/proprietary plugins never accidentally get pushed.
 
-Plugin contract documented in `docs/plugins.md` (TODO).
+---
+
+## Tauri desktop app (in development)
+
+A Tauri 2.x desktop wrapper exists at `src-tauri/` (window, native folder
+picker, recent-projects, file-preview path-traversal guard). The build is
+not yet validated on the developer's primary machine due to a Windows
+Application Control policy. See [src-tauri/README.md](src-tauri/README.md)
+for build instructions on machines without WDAC blocking.
+
+For everyday use, `Drishti.cmd` (Windows) or `node src/scan.js` (any OS)
+work today.
 
 ---
 
@@ -65,12 +111,11 @@ Plugin contract documented in `docs/plugins.md` (TODO).
 
 MIT — see [LICENSE](LICENSE).
 
----
-
 ## Privacy
 
-- Drishti runs entirely on your machine. No telemetry, no analytics, no
-  network calls except whatever you explicitly trigger (e.g. dependency audit).
-- The optional `sample-firebase.js` script reads field NAMES only from your
-  Firestore (no values), and only if you run it explicitly with credentials.
+- Drishti runs entirely on your machine. No telemetry, no analytics.
+- Optional `sample-firebase.js` reads only Firestore field NAMES (no values),
+  only when you run it explicitly with your service-account credentials.
 - Scan output (`drishti-scans/*.json`, `drishti.html`) is never uploaded.
+- The Files tab's preview pane refuses to read files matching a sensitive
+  deny-list: `.env*`, `*credentials*`, `*.key`, `*.pem`, ssh keys.
