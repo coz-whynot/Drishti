@@ -1,0 +1,7 @@
+{
+  "name": "postgres",
+  "version": "0.9.0",
+  "description": "Postgres plugin — parses Knex.js migrations (knex.schema.createTable in up()) and raw .sql DDL files. Distinct from the SQLite plugin in that it understands Postgres-specific types (UUID, JSONB, SERIAL, ARRAY) and Knex's JS-builder API.",
+  "detect": "./detect.js",
+  "parsers": ["./parser.js"]
+}

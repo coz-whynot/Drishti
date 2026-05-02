@@ -1,0 +1,7 @@
+{
+  "name": "mongoose",
+  "version": "0.9.0",
+  "description": "Mongoose plugin — parses MongoDB schema definitions written with Mongoose (`new Schema({ ... })`) into the Schema tab. Detects via `mongoose` package import or `models/` directory.",
+  "detect": "./detect.js",
+  "parsers": ["./parser.js"]
+}
