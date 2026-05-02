@@ -1,0 +1,135 @@
+# Release workflow — builds the Tauri desktop app on three platforms when a
+# version tag (`v*`) is pushed, then attaches all installers to a GitHub
+# Release. Triggered manually via `workflow_dispatch` too, for dry-runs.
+#
+# Outputs per platform:
+#   windows-latest → Drishti_<version>_x64-setup.exe (NSIS installer)
+#   macos-latest   → Drishti_<version>_x64.dmg + .app bundle
+#   ubuntu-latest  → drishti_<version>_amd64.deb, drishti-<version>.AppImage
+#
+# v1.0.x ships unsigned. Code signing (EV cert / Apple Developer) is documented
+# but not wired up — the README explains the "publisher unknown" warning to users.
+
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest, macos-latest, ubuntu-22.04]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry + target
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      # Tauri on Ubuntu needs webkit2gtk + a few system libs.
+      # The package set differs between Ubuntu 22.04 (libwebkit2gtk-4.0) and
+      # 24.04 (libwebkit2gtk-4.1). We pin to 22.04 to keep this stable.
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libssl-dev \
+            libgtk-3-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: npm install
+        run: npm ci || npm install
+
+      - name: Build Tauri app
+        run: npm run tauri:build
+        env:
+          # Skip code signing on all platforms for v1.0.x.
+          # When EV cert / Apple Developer creds are wired up, set them as
+          # repo secrets and reference them here:
+          #   TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY: ''
+
+      # ----- Upload artifacts (per-platform paths) -----
+
+      - name: Upload Windows installer
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: drishti-windows
+          path: src-tauri/target/release/bundle/nsis/*.exe
+
+      - name: Upload macOS DMG
+        if: matrix.platform == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: drishti-macos
+          path: src-tauri/target/release/bundle/dmg/*.dmg
+
+      - name: Upload Linux .deb + .AppImage
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: drishti-linux
+          path: |
+            src-tauri/target/release/bundle/deb/*.deb
+            src-tauri/target/release/bundle/appimage/*.AppImage
+
+  # Once all three platforms succeed, create a GitHub Release and attach the
+  # installers. This step only runs when the workflow was triggered by a tag
+  # push (not a manual workflow_dispatch).
+  release:
+    needs: build
+    runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: true
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/drishti-windows/*
+            artifacts/drishti-macos/*
+            artifacts/drishti-linux/*

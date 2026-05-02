@@ -1,0 +1,45 @@
+# Test workflow — runs on every push to main and every PR.
+# Validates: vitest passes, the scan CLI runs end-to-end without crashing.
+
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-22.04, windows-latest]
+        node: [20]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: npm install
+        run: npm ci || npm install
+
+      - name: Run vitest
+        run: npm test
+
+      - name: Smoke-test scan on the Drishti repo itself
+        # If scan.js can scan its own checkout without throwing, the wiring works.
+        # We don't check output content here — that's vitest's job.
+        run: node src/scan.js .
+        shell: bash
